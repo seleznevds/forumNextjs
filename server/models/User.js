@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const _ = require('lodash');
 
 const { Schema } = mongoose;
 
@@ -14,11 +15,7 @@ const mongoSchema = new Schema({
    token_type: String,
    expiry_date: Number,
  },
- slug: {
-   type: String,
-   required: true,
-   unique: true,
- },
+ 
  createdAt: {
    type: Date,
    required: true,
@@ -33,19 +30,73 @@ const mongoSchema = new Schema({
    default: false,
  },
  displayName: String,
- avatarUrl: String,
-
- isGithubConnected: {
-   type: Boolean,
-   default: false,
- },
- githubAccessToken: {
-   type: String,
- },
- test: String
-
+ avatarUrl: String
  
 });
+
+class UserClass {
+  static publicFields() {
+    return [
+      'id',
+      'displayName',
+      'email',
+      'avatarUrl',
+      'isAdmin'
+    ];
+  }
+
+  static async signInOrSignUp({ googleId, email, googleToken, displayName, avatarUrl }) {
+    const user = await this.findOne({ googleId }).select(UserClass.publicFields().join(' '));
+
+    if (user) {
+      const modifier = {};
+
+      if (googleToken.accessToken) {
+        modifier.access_token = googleToken.accessToken;
+      }
+
+      if (googleToken.refreshToken) {
+        modifier.refresh_token = googleToken.refreshToken;
+      }
+
+      if (_.isEmpty(modifier)) {
+        return user;
+      }
+
+      await this.updateOne({ googleId }, { $set: modifier });
+
+      return user;
+    }
+
+    
+
+    const newUser = await this.create({
+      createdAt: new Date(),
+      googleId,
+      email,
+      googleToken,
+      displayName,
+      avatarUrl
+    });    
+
+    return _.pick(newUser, UserClass.publicFields());
+  }
+}
+
+mongoSchema.loadClass(UserClass);
+
+mongoSchema.virtual('id').get(function(){
+  return this._id.toHexString();
+});
+
+// Ensure virtual fields are serialised.
+mongoSchema.set('toJSON', {
+  virtuals: true
+});
+mongoSchema.set('toObject', {
+  virtuals: true
+});
+
 
 const User = mongoose.model('User', mongoSchema);
 

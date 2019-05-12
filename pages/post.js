@@ -3,14 +3,12 @@ import { postsApi } from '../lib/posts'
 import Post from '../components/Post.js'
 import { Row, Col } from "react-materialize";
 import Comments from "../components/comments/Comments";
-
 import Link from 'next/link';
+import withLayout from '../lib/withLayout';
+import withAuth from '../lib/withAuth';
 
 class PostPage extends Component {
 
-    constructor(props) {
-        super(props);
-    }
     
     render() {
         return (
@@ -26,7 +24,7 @@ class PostPage extends Component {
                         <>
                             
                             <Col s={12} className=""><Post post={this.props.post} isDetail /></Col>
-                            <Col s={12} className=""><Comments postId={this.props.post.id} /></Col>
+                            <Col s={12} className=""><Comments postId={this.props.post.id}/></Col>
                         </>
                 }
             </Row>
@@ -34,29 +32,21 @@ class PostPage extends Component {
     }
 
     static async getInitialProps({ req, res, query }) {
-        if (req) {
-            console.log('server side1');
-        } else {
-            console.log('client side');
-        }
-
         const { postId } = query;
         try {
             let post = await postsApi.getId(postId);
-            return { post }
+            return { post };
 
         } catch (err) {
             console.log(err);
             if (req) {
-                console.log('server side')
-                res.writeHead(302, { Location: `/` })
-                res.end()
+                res.writeHead(302, { Location: `/` });
+                res.end();
             } else {
-                console.log('client side')
-                Router.push(`/`)
+                Router.push(`/`);
             }
         }
     }
 }
 
-export default PostPage;
+export default withAuth(withLayout(PostPage), {loginRequired: false});

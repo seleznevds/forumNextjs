@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
 import { commentsApi } from '../../lib/comments';
 import PropTypes from 'prop-types';
-import { Textarea, Button, Row, Col, Preloader } from 'react-materialize'
+import { Textarea, Button, Row, Col, Preloader, Icon } from 'react-materialize';
+import UserContext from '../../lib/UserContext';
+import Router from 'next/router';
+import styled from 'styled-components';
+
+
+const AvatarIcon= styled(Icon)`
+  user-select: none
+`;
+
 
 
 class CommentsForm extends Component {
@@ -16,10 +25,22 @@ class CommentsForm extends Component {
   };
 
   showForm = (event) => {
+    if(! this.context || ! this.context.id){
+      Router.push('/login');
+      return;
+    }
+      
     this.setState({
       hidden: false
     })
     event.preventDefault();
+  }
+
+  onFocusHandler = () => {
+    if(! this.context || !this.context.id){
+      Router.push('/login');
+      return;
+    }
   }
 
   onChangeHandler = (event) => {
@@ -88,12 +109,17 @@ class CommentsForm extends Component {
   }
 
 
-  render() {
+  render() {   
+
+    let avatar = this.context && this.context.avatarUrl ? <img className="circle responsive-img" src={this.context.avatarUrl} /> 
+     : <AvatarIcon medium={true}>account_circle</AvatarIcon>;
+    
+
     let form = (<div>
       <form onSubmit={this.onSubmitHandler}>
         <Row >
           <Col s={12}><Textarea name="comment_text" s={12} placeholder="Оставьте комментарий"
-            onChange={this.onChangeHandler} value={this.state.value} style={{ marginTop: '0px' }} /></Col>
+            onChange={this.onChangeHandler} value={this.state.value} style={{ marginTop: '0px' }} onFocus={this.onFocusHandler}/></Col>
           <Col s={6}>{this.state.errorText}</Col>
           <Col s={6} >
             <Button className="right" type="submit" small disabled={!this.state.readyToSubmit} >Отправить</Button>
@@ -104,16 +130,16 @@ class CommentsForm extends Component {
     </div>);
 
     let formLayout;
-    
+
     if (this.props.ancestorId !== null) {
       formLayout = (
         <Row >
           <Col s={2}>{this.props.voteForm}</Col>
           <Col s={10}><a href="#" onClick={this.showForm}>Ответить</a></Col>
           <Col s={12}  >
-            {! this.state.loading ?
+            {!this.state.loading ?
               <Row style={{ marginTop: "10px" }} hidden={this.state.hidden}>
-                <Col s={1}>{<img className="circle responsive-img" src="/static/images/avatars/brian.jpg" />}</Col>
+                <Col s={1}>{avatar}</Col>
                 <Col s={11} >{form} </Col>
               </Row> :
               <Row >
@@ -130,7 +156,7 @@ class CommentsForm extends Component {
     } else {
       formLayout = !this.state.loading ? (
         <Row >
-          <Col s={1}>{<img className="circle responsive-img" src="/static/images/avatars/brian.jpg" />}</Col>
+          <Col s={1}>{avatar}</Col>
           <Col s={9} >
             <div>{form}</div>
           </Col>
@@ -145,10 +171,14 @@ class CommentsForm extends Component {
     return formLayout;
 
   }
+
+  static contextType = UserContext;
+
+  static propTypes = {
+    receiveCommentHandler: PropTypes.func.isRequired
+  };
 }
 
-CommentsForm.propTypes = {
-  receiveCommentHandler: PropTypes.func.isRequired
-};
+
 
 export default CommentsForm;

@@ -5,8 +5,11 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const mongoSessionStore = require('connect-mongo');
+const helmet = require('helmet');
 require('dotenv').config();
 const api = require('./api');
+const auth = require('./googleAuth');
+
 
 /*const votesApi = require('./routes/votes');
 const postsApi = require('./routes/posts');
@@ -32,6 +35,7 @@ const handle = app.getRequestHandler();
 
 app.prepare().then(async () => {
     const server = express();
+    //server.use(helmet());
 
     const MongoStore = mongoSessionStore(session);
     const sess = {
@@ -66,7 +70,31 @@ app.prepare().then(async () => {
     // Then pass them to cors:
     server.use(cors(corsOptions));
 
+    auth({ server, ROOT_URL });
     api(server);
+
+
+    server.get('/profile', (req, res) => {
+        app.render(req, res, '/profile');
+        /*return;
+        if(req.user){
+            
+        } else{
+            res.redirect('/login');
+        }    */    
+    });
+
+    server.get('/login', (req, res) => {
+        app.render(req, res, '/login');
+        /*return;
+        if(req.user){
+            res.redirect('/profile');            
+        } else{
+            app.render(req, res, '/login');
+        }       */ 
+    });
+
+
 
     server.get('/post/:postId', (req, res) => {
         const { postId } = req.params;

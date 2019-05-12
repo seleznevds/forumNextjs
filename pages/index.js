@@ -2,7 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { postsApi } from '../lib/posts';
 import Post from '../components/Post';
-import { Row, Col } from 'react-materialize'
+import { Row, Col } from 'react-materialize';
+import withLayout from '../lib/withLayout';
+import withAuth from '../lib/withAuth';
 
 
 
@@ -29,14 +31,6 @@ class Index extends React.Component {
 
 
     static async getInitialProps({ req, query, pathname }) {
-
-        if (req) {
-            console.log('server index');
-        } else {
-            console.log('client index');
-        }
-               
-       
         try {
             let posts = await postsApi.getList();
             return {
@@ -51,4 +45,4 @@ class Index extends React.Component {
 
 }
 
-export default Index;
+export default withAuth(withLayout(Index),  {loginRequired: false});

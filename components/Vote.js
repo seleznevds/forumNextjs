@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 import sendVote from '../lib/votes'
 import PropTypes from 'prop-types';
-import { Icon, Button } from 'react-materialize'
+import { Icon, Button, Modal } from 'react-materialize'
 import styled from 'styled-components';
+import UserContext from '../lib/UserContext';
 
 const StyledButton = styled(Button)`
     user-select: none;
 `;
+
+const StyledModal = styled(Modal)`
+    max-width: 378px;
+    max-height: 200px;
+`;
+
 
 class Vote extends Component {
     constructor(props) {
@@ -17,16 +24,31 @@ class Vote extends Component {
             removeVoteType: undefined,
             likes: props.votes.likes,
             dislikes: props.votes.dislikes,
-            block: false
+            block: false,
+            fromServer: true, 
+            modalHeader: 'Понравилось?'
         }
+    }
+
+    componentDidMount(){
+        this.setState({
+            fromServer: false
+        });
     }
 
 
     handlerClick = (userVoteType) => {
         if(this.state.block){   
-            console.log('blocked')         
             return;            
         }
+
+        if(! this.context || !this.context.id){
+            this.setState({
+                modalHeader: userVoteType === 'like' ? "Понравилось?" : "Не понравилось?"
+            })
+            return;
+        }
+
         this.setState((state) => {
             userVoteType = userVoteType === this.state.userVoteType ? undefined : userVoteType;
             let removeVoteType = this.state.userVoteType;
@@ -86,8 +108,9 @@ class Vote extends Component {
                     small
                     onClick={() => { this.handlerClick('like'); }}
                     onSelect={(event)=> {event.preventDefault();}}
-                    className={likeButtonClassName}
+                    className={[likeButtonClassName, ! this.context || !this.context.id ? 'modal-trigger': '']}
                     style={{ marginRight: '10px', padding: "0 3px" }}
+                    href={ ! this.context || !this.context.id ? `#vote_unauthorized_modal${this.props.elementId}` : undefined}
                 > {this.state.likes} <Icon className="votes_button_icon">thumb_up</Icon>
                 </StyledButton>
 
@@ -100,13 +123,27 @@ class Vote extends Component {
                     style={{ marginRight: '10px', padding: "0 3px" }}
                     onClick={() => { this.handlerClick('dislike'); }}
                     onSelect={(event)=> {event.preventDefault();}}
-                    className={dislikeButtonClassName}
-
+                    className={[dislikeButtonClassName, ! this.context || !this.context.id ? 'modal-trigger': '']}
+                    href={ ! this.context || !this.context.id ? `#vote_unauthorized_modal${this.props.elementId}` : undefined}
                 > {this.state.dislikes} <Icon className="votes_button_icon">thumb_down</Icon>
                 </StyledButton>
+                {! this.state.fromServer ?
+                (<StyledModal  id={`vote_unauthorized_modal${this.props.elementId}`} 
+                header={this.state.modalHeader} fixedFooter  actions={[ 
+                <Button waves="teal" node="a" flat href="/login">Войти</Button>]}
+                 options={{ endingTop: '10%'}}
+                
+                >
+                Войдите в аккаунт, чтобы поставить отметку.
+                </StyledModal>) : null}
+                
             </>
         );
     }
+
+
+
+    static contextType = UserContext;
 }
 
 
