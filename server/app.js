@@ -11,9 +11,6 @@ const api = require('./api');
 const auth = require('./googleAuth');
 
 
-/*const votesApi = require('./routes/votes');
-const postsApi = require('./routes/posts');
-const commentsApi = require('./routes/comments');*/
 
 mongoose.connect(
     process.env.MONGO_URL,
@@ -35,7 +32,7 @@ const handle = app.getRequestHandler();
 
 app.prepare().then(async () => {
     const server = express();
-    //server.use(helmet());
+    server.use(helmet());
 
     const MongoStore = mongoSessionStore(session);
     const sess = {
@@ -55,10 +52,6 @@ app.prepare().then(async () => {
 
     server.use(session(sess));
 
-    server.use(bodyParser.urlencoded({
-        extended: false
-    }));
-
     server.use(bodyParser.json());
 
     // Set up a whitelist and check against it:
@@ -70,31 +63,21 @@ app.prepare().then(async () => {
     // Then pass them to cors:
     server.use(cors(corsOptions));
 
-    auth({ server, ROOT_URL });
+    auth({ server, ROOT_URL });    
     api(server);
 
 
     server.get('/profile', (req, res) => {
         app.render(req, res, '/profile');
-        /*return;
-        if(req.user){
-            
-        } else{
-            res.redirect('/login');
-        }    */    
     });
 
     server.get('/login', (req, res) => {
         app.render(req, res, '/login');
-        /*return;
-        if(req.user){
-            res.redirect('/profile');            
-        } else{
-            app.render(req, res, '/login');
-        }       */ 
     });
 
-
+    server.get('/post/create', (req, res) => {
+        app.render(req, res, '/post/create');
+    });
 
     server.get('/post/:postId', (req, res) => {
         const { postId } = req.params;

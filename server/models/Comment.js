@@ -4,8 +4,8 @@ const { Schema } = mongoose;
 
 const mongoSchema = new Schema({
     authorId: {
-        type: Number,
-        default: 1
+        type: Schema.Types.ObjectId,
+        required: true
     },
 
     postId: {
@@ -57,6 +57,7 @@ class CommentClass {
     static async add({
         postId,
         text,
+        authorId,
         parentId = null,
         ancestorId = null
     }) {            
@@ -65,7 +66,8 @@ class CommentClass {
             postId,
             text,
             parentId,
-            ancestorId
+            ancestorId,
+            authorId
         });
 
         if(parentId && ancestorId){

@@ -1,17 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
 import { postsApi } from '../lib/posts';
 import Post from '../components/Post';
 import { Row, Col } from 'react-materialize';
 import withLayout from '../lib/withLayout';
 import withAuth from '../lib/withAuth';
-
-
-
-const Title = styled.h1`
-  color: red;
-  font-size: 50px;
-`;
+import Link from 'next/link';
 
 class Index extends React.Component {
     constructor(props){
@@ -21,7 +14,6 @@ class Index extends React.Component {
     render() {
         return (
             <div>
-                <Title>This is the about page</Title>
                 {this.props.posts && this.props.posts.map((post) => {
                     return  <Col s={12} className=""  key={post.id}><Post post={post}/></Col>
                 })}
@@ -32,7 +24,12 @@ class Index extends React.Component {
 
     static async getInitialProps({ req, query, pathname }) {
         try {
-            let posts = await postsApi.getList();
+            const headers = {};
+            if (req && req.headers && req.headers.cookie) {
+                headers.cookie = req.headers.cookie;
+            }
+            
+            let posts = await postsApi.getList({headers});
             return {
                 posts
             };

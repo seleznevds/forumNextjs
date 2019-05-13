@@ -3,6 +3,7 @@ let router = express.Router();
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const Vote = require('../models/Vote');
+const User = require('../models/User');
 
 
 router.get('/', async (req, res) => {
@@ -37,13 +38,17 @@ router.get('/', async (req, res) => {
   });
 
 
-  let votes;
-  try {
-    votes = await Vote.getVotesByElementsIds('Comment', 1, commentsIds)
-  } catch (err) {
-    console.log(err);
-    votes = new Map();
+  let votes = new Map();
+  if (req.user && req.user.id) {
+    try {
+      votes = await Vote.getVotesByElementsIds('Comment', req.user.id, commentsIds)
+    } catch (err) {
+      console.log(err);
+      votes = new Map();
+    }
   }
+
+  
 
   commentsList = commentsList.map((comment) => {
     comment = comment.toObject({ virtuals: true });
@@ -51,26 +56,17 @@ router.get('/', async (req, res) => {
     return comment;
   });
 
-  let authorsList = [
-    {
-      id: 1,
-      name:"Brian Griffin",
-      surname: "Petrov",
-      avatar: "/static/images/avatars/brian.jpg"
-    },
+  const userIdList = commentsList.map((comment) => {
+    return comment.authorId.toString();
+  });
 
-    {
-      id: 2,
-      name:"Peter Griffin",
-      surname: "Petrov",
-      avatar: "/static/images/avatars/peter.jpg"
-    }  
-  ]  ;
+  const authors = await User.getUsersByIds(userIdList);
+
 
   res.send({
     commentsList: {
       comments: commentsList,
-      authors: authorsList
+      authors
     }
 
   });
@@ -80,6 +76,10 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   if (!req.body.postId) {
     res.status(400).send('expected postId ,voteType params');
+  }
+
+  if (!req.user || !req.user.id) {
+    res.status(400).send('unauthorized user');
   }
 
   let post = await Post.findById(req.body.postId);
@@ -94,6 +94,7 @@ router.post('/', async (req, res) => {
       comment = await Comment.add({
         postId: req.body.postId,
         text: req.body.text,
+        authorId: req.user.id,
         parentId: req.body.parentId || null,
         ancestorId: req.body.ancestorId || null
       });
@@ -112,14 +113,11 @@ router.post('/', async (req, res) => {
       status: true,
       comment,
       author: {
-        id: 1,
-        name: "Brian Griffin",
-        surname: "Petrov",
-        avatar: "/static/images/avatars/brian.jpg"
+        id: req.user.id,
+        displayName: req.user.displayName,
+        avatarUrl: req.user.avatarUrl
       }
-
-    }
-    );
+    });
 
   }
 

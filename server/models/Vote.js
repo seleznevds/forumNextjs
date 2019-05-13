@@ -15,7 +15,10 @@ const mongoSchema = new Schema({
         required: true
     },
 
-    authorId: Number,
+    authorId: {
+        type: Schema.Types.ObjectId,
+        required: true
+    },
 
     voteType: String
 });

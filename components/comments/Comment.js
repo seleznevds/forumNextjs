@@ -107,7 +107,7 @@ class Comment extends Component {
 
         return (
             <Row key={comment.id}>
-                <Col s={1}>{<img className="circle responsive-img" src={author.avatar} />}</Col>
+                <Col s={1}>{<img className="circle responsive-img" src={author.avatarUrl} />}</Col>
                 <Col s={9} >
                     <CommentText>{comment.text}</CommentText>
                     <CommentsForm parentId={comment.id} ancestorId={comment.ancestorId || comment.id} postId={comment.postId}

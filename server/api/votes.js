@@ -5,6 +5,10 @@ const Comment = require('../models/Comment');
 const Vote = require('../models/Vote');
 
 router.post('/', async (req, res) => {
+  if (!req.user || !req.user.id) {
+    res.status(400).send('unauthorized user');
+  }
+  
   if (!req.body.elementId || !(req.body.voteType || req.body.removeVoteType)) {
     res.status(400).send('invalid params1');
     return;
@@ -59,7 +63,7 @@ router.post('/', async (req, res) => {
   let promises = [];
   if (req.body.removeVoteType) {
 
-    promises.push(Vote.removeVote(req.body.moduleName, req.body.elementId, 1, req.body.removeVoteType));
+    promises.push(Vote.removeVote(req.body.moduleName, req.body.elementId, req.user.id, req.body.removeVoteType));
 
     if (req.body.removeVoteType === 'like') {
       votes.likes = votes.likes > 0 ? votes.likes - 1 : 0;
@@ -70,7 +74,7 @@ router.post('/', async (req, res) => {
 
 
   if (req.body.voteType) {
-    promises.push(Vote.add(req.body.moduleName, req.body.elementId, 1, req.body.voteType));
+    promises.push(Vote.add(req.body.moduleName, req.body.elementId, req.user.id, req.body.voteType));
 
     if (req.body.voteType === 'like') {
       votes.likes = votes.likes + 1;

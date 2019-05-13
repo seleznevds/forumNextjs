@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { postsApi } from '../lib/posts'
-import Post from '../components/Post.js'
-import { Row, Col } from "react-materialize";
-import Comments from "../components/comments/Comments";
 import Link from 'next/link';
-import withLayout from '../lib/withLayout';
-import withAuth from '../lib/withAuth';
+import { Row, Col } from "react-materialize";
+import { postsApi } from '../../lib/posts';
+import Post from '../../components/Post.js';
+import Comments from "../../components/comments/Comments";
+import withLayout from '../../lib/withLayout';
+import withAuth from '../../lib/withAuth';
 
 class PostPage extends Component {
 
@@ -34,7 +34,12 @@ class PostPage extends Component {
     static async getInitialProps({ req, res, query }) {
         const { postId } = query;
         try {
-            let post = await postsApi.getId(postId);
+            const headers = {};
+            if (req && req.headers && req.headers.cookie) {
+                headers.cookie = req.headers.cookie;
+            }
+            
+            let post = await postsApi.getId(postId, headers);
             return { post };
 
         } catch (err) {

@@ -4,34 +4,34 @@ const _ = require('lodash');
 const { Schema } = mongoose;
 
 const mongoSchema = new Schema({
- googleId: {
-   type: String,
-   required: true,
-   unique: true,
- },
- googleToken: {
-   access_token: String,
-   refresh_token: String,
-   token_type: String,
-   expiry_date: Number,
- },
- 
- createdAt: {
-   type: Date,
-   required: true,
- },
- email: {
-   type: String,
-   required: true,
-   unique: true,
- },
- isAdmin: {
-   type: Boolean,
-   default: false,
- },
- displayName: String,
- avatarUrl: String
- 
+  googleId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  googleToken: {
+    access_token: String,
+    refresh_token: String,
+    token_type: String,
+    expiry_date: Number,
+  },
+
+  createdAt: {
+    type: Date,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  displayName: String,
+  avatarUrl: String
+
 });
 
 class UserClass {
@@ -68,7 +68,7 @@ class UserClass {
       return user;
     }
 
-    
+
 
     const newUser = await this.create({
       createdAt: new Date(),
@@ -77,15 +77,32 @@ class UserClass {
       googleToken,
       displayName,
       avatarUrl
-    });    
+    });
 
     return _.pick(newUser, UserClass.publicFields());
+  }
+
+  static async getUsersByIds(idList = []) {
+    if (!idList.length) {
+      return [];
+    }
+
+    let users;
+    
+    try{
+      users = await this.find({ _id: { $in: idList } }).select(UserClass.publicFields().join(' '));
+    } catch(err){
+      users = [];
+      console.log(err);
+    }
+
+    return users;
   }
 }
 
 mongoSchema.loadClass(UserClass);
 
-mongoSchema.virtual('id').get(function(){
+mongoSchema.virtual('id').get(function () {
   return this._id.toHexString();
 });
 

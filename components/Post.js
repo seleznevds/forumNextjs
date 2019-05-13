@@ -30,7 +30,7 @@ class Post extends React.Component {
                 header={title}
                 actions={[<Vote key={post.id} elementId={post.id} votes={post.votes} moduleName='Post' />]}>
                 <img src={post.image} />
-                <p>{post.preview}</p>
+                <p>{this.props.isDetail ? post.text : post.preview}</p>
             </Card>
         );
     }
