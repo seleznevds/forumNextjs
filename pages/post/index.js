@@ -13,11 +13,6 @@ class PostPage extends Component {
     render() {
         return (
             <Row>
-                <>
-                    <h2>Detail</h2>
-                    <Link href="/"><a>На главную</a></Link>
-                    
-                </>
                 {
                     !this.props.post ?
                         <div>Loading</div> :

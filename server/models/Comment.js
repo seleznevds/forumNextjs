@@ -101,8 +101,8 @@ class CommentClass {
         return newComment;
     }
 
-    static async list(offset = 0, limit = 10, ancestorId = null, sort = { createdAt: -1 }) {
-        const comments = await this.find({ ancestorId })
+    static async list(postId, offset = 0, limit = 10, ancestorId = null, sort = { createdAt: -1 }) {
+        const comments = await this.find({postId, ancestorId })
             .sort(sort)
             .skip(offset)
             .limit(limit);

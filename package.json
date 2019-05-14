@@ -17,6 +17,7 @@
     "connect-mongo": "^2.0.3",
     "cors": "^2.8.5",
     "dotenv": "^7.0.0",
+    "escape-html": "^1.0.3",
     "express": "^4.16.4",
     "express-session": "^1.16.1",
     "helmet": "^3.18.0",

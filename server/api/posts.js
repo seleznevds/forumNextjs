@@ -3,55 +3,117 @@ let router = express.Router();
 let Post = require('../models/Post');
 let Vote = require('../models/Vote');
 const uuidv4 = require('uuid/v4');
-
-
 const multer = require('multer');
+const path = require('path');
+const fs = require('fs')
+const config = require('../config.js');
 
-var storage = multer.diskStorage({
+
+let checkAuthMiddleware = (req, res, next) => {
+  console.log('checkAuth');
+  if (!req.user || !req.user.id) {
+    res.status(401).json({
+      status: 'error',
+      message: 'Unauthorized user.'
+    });
+    return;
+  }
+
+  next();
+};
+
+let storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '/static/images/posts')
+    cb(null, path.join(config.staticFolder, '/images/posts'));
   },
   filename: function (req, file, cb) {
     let extension = file.originalname.match(/\.[a-z]{1,4}$/i);
-    cb(null, `${uuidv4()}${extension.length ? extension[0] : ''}`);
+    cb(null, `${uuidv4()}${extension && extension.length ? extension[0] : ''}`);
+
   }
 });
 
-var upload = multer({
+
+let upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if(! req.user || ! req.user.id){
-      cb(null, false);
+    if (!['image/jpeg', 'image/pjpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
+      cb(new Error('Wrong mime type'), false);      
       return;
     }
-
-    if(! ['image/jpeg', 'image/pjpeg', 'image/png'].includes(file.mimetype)){
-      console.log('Wrong  mimetype for Post image!');
-      cb(new Error('Wrong  mimetype for Post image!'));
-      return;
-    }
-
-    cb(null, true);   
+    console.log('fileFilter');
+    cb(null, true);
   },
   limits: {
     fields: 10,
     fileSize: 1024 * 512, // max filesize  in bytes
-    fieldSize: 1024 * 512, // max filesize  in bytes
+    fieldSize: 1024 * 512,
   }
-});
+}).single('image');
 
-router.get('/create', async (req, res) => {
-  upload(req, res, function (err) {
-    if (err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading.
-    } else if (err) {
-      // An unknown error occurred when uploading.
+let createPostErrorMiddleware  = (err, req, res, next) =>{
+  if (err) {
+    console.log('post /create error');
+    res.status(404).json({
+      status: 'error',
+      message: 'Некорректный файл. Используйте  изображения  в формате webp, png или  jpg, размером не более  512 kb'
+    });
+
+    return;
+  } 
+
+  next();
+}
+
+
+router.post('/create', checkAuthMiddleware ,  upload, createPostErrorMiddleware , async (req, res) => {
+  console.log('post /create');
+  let title = req.body && req.body.title? req.body.title.trim() : '';
+  let content = req.body && req.body.content? req.body.content.trim() : '';
+
+  if (!title || !content) {
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, () => {
+
+      });
     }
 
-    // Everything went fine.
-  })
+    console.log(req.body.title, req.body.content);
 
+    res.status(404).json({
+      status: 'error',
+      message: 'Необходимо  заполнить  обязательные поля'
+    });
 
+    return;
+  }
+
+  try {
+    let post = await Post.add({
+      title,
+      preview: req.body.preview || '',
+      text: req.body.content,
+      image: req.file && req.file.filename ? `/images/posts/${req.file.filename}` : ''
+    });
+
+    if (post) {
+      res.status(200).json({
+        status: 'success',
+        message: 'Пост  добавлен!',
+        postId: post.id
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, () => {});
+    }
+
+    res.status(404).json({
+      status: 'error',
+      message: 'Неизвестная  ошибка. Попробуйте повторить  через некоторое время.'
+    });
+  }
 });
 
 

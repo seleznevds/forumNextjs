@@ -8,6 +8,11 @@ const User = require('../models/User');
 
 router.get('/', async (req, res) => {
 
+  let postId = req.query.postId ? req.query.postId.trim() : '';
+  if(! postId) {
+    res.status(400).send('comments  retriev error');
+  }
+
   let ancestorId = req.query.ancestorId || undefined;
 
   let limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
@@ -26,7 +31,7 @@ router.get('/', async (req, res) => {
 
   let commentsList = [];
   try {
-    commentsList = await Comment.list(offset, limit, ancestorId, sort);
+    commentsList = await Comment.list(postId, offset, limit, ancestorId, sort);
   } catch (err) {
     console.log(err);
     res.status(400).send('comments  retriev error');

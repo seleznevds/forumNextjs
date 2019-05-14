@@ -12,3 +12,4 @@ node_modules/
 .coverage
 .env
 .next
+static/images/posts/

@@ -1,33 +1,49 @@
 import React, { Component } from 'react';
-import Link from 'next/link';
-import { Row, Col, TextInput, Textarea, Button} from "react-materialize";
+import Router from 'next/router';
+import { Row, Col, TextInput, Textarea, Button, Icon} from "react-materialize";
 import { postsApi } from '../../lib/posts';
 import withLayout from '../../lib/withLayout';
 import withAuth from '../../lib/withAuth';
 
 class PostCreatePage extends Component {
 
+
+    onSubmitHandler = (event) => {
+
+        var bodyFormData = new FormData(event.target);
+        postsApi.create(bodyFormData).then((response) => {
+            console.log(response);
+            if(response.postId){
+                Router.push(`/post/${response.postId}`);
+            }           
+        }).catch((err) => {
+            console.log('form submit error', err);
+        });
+       
+        event.preventDefault();
+    };
+
+
     
     render() {
         return (
             <Row>
-                <form >
+                <form encType="multipart/form-data" name="test" onSubmit={this.onSubmitHandler}>
                 <Col s={12}><h2>Create post</h2></Col>
 
-                <Col s={12}><TextInput label="Tiltle" s={6} /></Col>
-                <Col s={12}><Textarea label="Preview" s={6}/></Col>
-                <Col s={12}> <Textarea label="Content" s={6} /></Col>
+                <Col s={12}><TextInput name="title" label="Tiltle" s={6} /></Col>
+                <Col s={12}><Textarea name="preview" label="Preview" s={6}/></Col>
+                <Col s={12}> <Textarea name="content" label="Content" s={6} /></Col>
                 <Col s={6}>
                 <div className="file-field input-field">
                     <div className="btn">
                     <span>File</span>
-                    <input type="file"/>
+                    <input name="image" type="file"/>
                     </div>
                     <div className="file-path-wrapper ">
                     <input className="file-path validate" type="text"/>
                     </div>
-                </div>
-                
+                </div>            
                 
                 
                 

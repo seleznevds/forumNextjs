@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const escape =  require('escape-html');
 const { Schema } = mongoose;
 
 // Duplicate the ID field.
@@ -63,11 +64,11 @@ class PostClass {
         return  posts;
     }
 
-    static async add({title, text, image}){
+    static async add({title, preview, text, image}){
         return this.create({
-            title,
-            preview: text.slice(0, 100),
-            text,
+            title: escape(title.trim()),
+            preview: escape(preview.trim().slice(0, 100)),
+            text: escape(text.trim()),
             image       
         });
     }

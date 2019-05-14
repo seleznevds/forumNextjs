@@ -9,6 +9,7 @@ const helmet = require('helmet');
 require('dotenv').config();
 const api = require('./api');
 const auth = require('./googleAuth');
+const config = require('./config');
 
 
 
@@ -33,7 +34,8 @@ const handle = app.getRequestHandler();
 app.prepare().then(async () => {
     const server = express();
     server.use(helmet());
-
+    server.use(express.static(config.staticFolder));
+   
     const MongoStore = mongoSessionStore(session);
     const sess = {
         name: 'forum.sid',
