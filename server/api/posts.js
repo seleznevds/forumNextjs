@@ -10,7 +10,6 @@ const config = require('../config.js');
 
 
 let checkAuthMiddleware = (req, res, next) => {
-  console.log('checkAuth');
   if (!req.user || !req.user.id) {
     res.status(401).json({
       status: 'error',
@@ -41,7 +40,6 @@ let upload = multer({
       cb(new Error('Wrong mime type'), false);      
       return;
     }
-    console.log('fileFilter');
     cb(null, true);
   },
   limits: {
@@ -67,7 +65,6 @@ let createPostErrorMiddleware  = (err, req, res, next) =>{
 
 
 router.post('/create', checkAuthMiddleware ,  upload, createPostErrorMiddleware , async (req, res) => {
-  console.log('post /create');
   let title = req.body && req.body.title? req.body.title.trim() : '';
   let content = req.body && req.body.content? req.body.content.trim() : '';
 
@@ -78,7 +75,7 @@ router.post('/create', checkAuthMiddleware ,  upload, createPostErrorMiddleware 
       });
     }
 
-    console.log(req.body.title, req.body.content);
+    
 
     res.status(404).json({
       status: 'error',

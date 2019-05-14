@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Link from 'next/link';
 import { Row, Col } from "react-materialize";
 import { postsApi } from '../../lib/posts';
 import Post from '../../components/Post.js';

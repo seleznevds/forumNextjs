@@ -1,10 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
-import { Card } from 'react-materialize'
-import Vote from './Vote'
+import { Card, Row, Col } from 'react-materialize'
+import Vote from './Vote';
+import styled from 'styled-components';
 
-
+const CardTitle = styled.div`
+  font-size:2rem;
+  margin: 10px 24px 24px 24px;
+`;
 
 class Post extends React.Component {
     state = { expanded: false };
@@ -15,23 +19,30 @@ class Post extends React.Component {
 
     render() {
         const { post, isDetail } = this.props;
-        const title = isDetail ? <div className="card_title">{post.title}</div> :
-        <div className="card_title">
-            <Link as={`/post/${post.id}`} href={`/post?postId=${post.id}`}>
+        const title = isDetail ? <CardTitle>{post.title}</CardTitle> :
+            <CardTitle>
+                <Link as={`/post/${post.id}`} href={`/post?postId=${post.id}`}>
                 <a>{post.title}</a>
-            </Link>
+                </Link>
 
-        </div>;
+            </CardTitle>;
 
-    return (
+        return (
+
             <Card
                 className=""
                 textClassName=""
                 header={title}
                 actions={[<Vote key={post.id} elementId={post.id} votes={post.votes} moduleName='Post' />]}>
-                <img src={post.image} />
-                <p>{this.props.isDetail ? post.text : post.preview}</p>
+                <Row>
+                    <Col s={5}>
+                        <img src={post.image} className="responsive-img" />
+                    </Col>
+                    <Col s={8}><p>{this.props.isDetail ? post.text : post.preview}</p></Col>
+                    
+                </Row>
             </Card>
+
         );
     }
 }
