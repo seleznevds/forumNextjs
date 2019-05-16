@@ -6,7 +6,9 @@ import CommentsForm from './CommentsForm';
 import { getUniqueCollectionByProp } from '../../lib/utils';
 import styled from 'styled-components';
 import Vote from '../Vote';
+import moment from 'moment';
 
+moment.locale('ru');
 const CommentText = styled.div`
     white-space: pre-wrap;
 `;
@@ -18,6 +20,22 @@ const CommentShowLink = styled.div`
     cursor:pointer;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;    
 `;
+
+const CommentAuthor = styled.span`
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;  
+    font-weight:500;
+    margin-right: 10px
+`;
+
+const CommentDate = styled.span`
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;  
+    font-weight:300;
+    font-size: 0.8rem;
+    margin-right: 10px;
+    color:hsl(0, 0%, 53.3%);
+`;
+
+
 
 class Comment extends Component {
     state = {
@@ -45,7 +63,7 @@ class Comment extends Component {
             this.state.comments.length === this.props.comment.descendantsIds.length) {
             return;
         }
-        this.props.getComments(this.props.comment.id, this.props.comment.postId, this, offset, limit);
+        this.props.getComments({ancestorId:this.props.comment.id, postId:this.props.comment.postId, component:this, offset, limit});
     }
 
     getMoreDescendants = (event) => {
@@ -109,6 +127,10 @@ class Comment extends Component {
             <Row key={comment.id}>
                 <Col s={1}>{<img className="circle responsive-img" src={author.avatarUrl} />}</Col>
                 <Col s={9} >
+                    <div>
+                        <CommentAuthor>{author.displayName}</CommentAuthor>
+                        <CommentDate>{ moment(comment.createdAt, "YYYY-MM-DDTHH:mm:ss.SSS").fromNow() }</CommentDate>
+                    </div>
                     <CommentText>{comment.text}</CommentText>
                     <CommentsForm parentId={comment.id} ancestorId={comment.ancestorId || comment.id} postId={comment.postId}
                         receiveCommentHandler={this.props.receiveCommentHandler || this.receiveComment}

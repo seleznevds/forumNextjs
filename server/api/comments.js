@@ -30,8 +30,9 @@ router.get('/', async (req, res) => {
   }
 
   let commentsList = [];
+  let commentsQuantity = 0;
   try {
-    commentsList = await Comment.list(postId, offset, limit, ancestorId, sort);
+    ({comments: commentsList, commentsQuantity } = await Comment.list(postId, offset, limit, ancestorId, sort));
   } catch (err) {
     console.log(err);
     res.status(400).send('comments  retriev error');
@@ -72,8 +73,9 @@ router.get('/', async (req, res) => {
     commentsList: {
       comments: commentsList,
       authors
-    }
-
+    },
+    
+    commentsQuantity
   });
 });
 

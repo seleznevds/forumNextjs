@@ -23,6 +23,7 @@
     "helmet": "^3.18.0",
     "lodash": "^4.17.11",
     "materialize-css": "^1.0.0",
+    "moment": "^2.24.0",
     "mongoose": "^5.5.5",
     "multer": "^1.4.1",
     "next": "8.1.0",
@@ -32,6 +33,7 @@
     "prop-types": "15.7.2",
     "react": "16.8.6",
     "react-dom": "16.8.6",
+    "react-infinite-scroll-component": "^4.5.2",
     "react-materialize": "^3.2.0",
     "styled-components": "^4.2.0",
     "uuid": "^3.3.2"

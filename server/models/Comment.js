@@ -96,7 +96,7 @@ class CommentClass {
                     console.log(err);
                 });
             }
-        }
+        } 
        
         return newComment;
     }
@@ -107,7 +107,13 @@ class CommentClass {
             .skip(offset)
             .limit(limit);
 
-        return comments;
+        let commentsQuantity = 0;
+
+        if(ancestorId === null){
+            commentsQuantity = await this.countDocuments({postId, ancestorId});
+        }
+
+        return {comments, commentsQuantity};
     }
 }
 

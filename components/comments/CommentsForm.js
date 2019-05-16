@@ -118,7 +118,7 @@ class CommentsForm extends Component {
     let form = (<div>
       <form onSubmit={this.onSubmitHandler}>
         <Row >
-          <Col s={12}><Textarea name="comment_text" s={12} placeholder="Оставьте комментарий"
+          <Col s={12}><Textarea id={'comment_form' + this.props.postId + (this.props.parentId ? this.props.parentId : '')} name="comment_text" s={12} placeholder="Оставьте комментарий"
             onChange={this.onChangeHandler} value={this.state.value} style={{ marginTop: '0px' }} onFocus={this.onFocusHandler}/></Col>
           <Col s={6}>{this.state.errorText}</Col>
           <Col s={6} >

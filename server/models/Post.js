@@ -52,13 +52,15 @@ const mongoSchema = new Schema({
 });
 
 class PostClass {
-    static async list(offset = 0, limit = 10) {
+    static async list({offset = 0, limit = 10} = {}) {
         const posts = await this.find({})
             .sort({ createdAt: -1 })
             .skip(offset)
             .limit(limit);
 
-        return  posts;
+        const postsQuantity = await this.estimatedDocumentCount();
+        
+        return  { posts, postsQuantity };
     }
 
     static async add({title, preview, text, image, userId}){

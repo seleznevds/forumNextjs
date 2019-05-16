@@ -244,9 +244,16 @@ router.get('/ifauthor/:id', checkAuthMiddleware, async (req, res) => {
 
 router.get('/', async (req, res) => {
 
-  try {
-    let posts = await Post.list();
+  let limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
+  limit = isNaN(limit) ? 10 : limit;
 
+  let offset = req.query.offset ? parseInt(req.query.offset, 10) : 0;
+  offset = isNaN(offset) ? 0 : offset;
+
+
+  try {
+    let {posts, postsQuantity} = await Post.list({offset, limit});
+    
     const postIds = posts.map((post) => {
       return post.id;
     });
@@ -268,7 +275,7 @@ router.get('/', async (req, res) => {
     });
 
 
-    res.json({ posts });
+    res.json({ posts, postsQuantity });
   } catch (err) {
     console.log(err);
   }
