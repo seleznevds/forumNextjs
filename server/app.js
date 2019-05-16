@@ -77,6 +77,11 @@ app.prepare().then(async () => {
         app.render(req, res, '/login');
     });
 
+    server.get('/post/edit/:postId', (req, res) => {
+        const { postId } = req.params;
+        app.render(req, res, '/post/edit', { postId });
+    });
+
     server.get('/post/create', (req, res) => {
         app.render(req, res, '/post/create');
     });

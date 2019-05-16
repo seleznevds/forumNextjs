@@ -5,6 +5,7 @@ import Post from '../../components/Post.js';
 import Comments from "../../components/comments/Comments";
 import withLayout from '../../lib/withLayout';
 import withAuth from '../../lib/withAuth';
+import Router from 'next/router';
 
 class PostPage extends Component {
 
@@ -33,7 +34,7 @@ class PostPage extends Component {
                 headers.cookie = req.headers.cookie;
             }
             
-            let post = await postsApi.getId(postId, headers);
+            let post = await postsApi.getId({postId, headers});
             return { post };
 
         } catch (err) {

@@ -22,7 +22,7 @@ class Post extends React.Component {
         const title = isDetail ? <CardTitle>{post.title}</CardTitle> :
             <CardTitle>
                 <Link as={`/post/${post.id}`} href={`/post?postId=${post.id}`}>
-                <a>{post.title}</a>
+                    <a>{post.title}</a>
                 </Link>
 
             </CardTitle>;
@@ -39,7 +39,11 @@ class Post extends React.Component {
                         <img src={post.image} className="responsive-img" />
                     </Col>
                     <Col s={8}><p>{this.props.isDetail ? post.text : post.preview}</p></Col>
-                    
+                    <Col s={1}>
+                        <p>
+                            <Link as={`/post/edit/${post.id}`} href={`/post/edit?postId=${post.id}`}><a>Редактировать</a></Link>
+                        </p>
+                    </Col>
                 </Row>
             </Card>
 

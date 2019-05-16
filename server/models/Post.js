@@ -12,8 +12,7 @@ const mongoSchema = new Schema({
     },
 
     preview: {
-        type: String,
-        required: true
+        type: String
     },
 
     text: {
@@ -41,14 +40,12 @@ const mongoSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now(),
-        required: true
+        
     },
 
-    author: {
-        id: {
-            type: Schema.Types.ObjectId,
-        },
-        name: String,
+    userId: {
+        type: Schema.Types.ObjectId,
+        required: true
     },
 
     image: String
@@ -64,13 +61,19 @@ class PostClass {
         return  posts;
     }
 
-    static async add({title, preview, text, image}){
+    static async add({title, preview, text, image, userId}){
         return this.create({
             title: escape(title.trim()),
             preview: escape(preview.trim().slice(0, 100)),
             text: escape(text.trim()),
-            image       
+            image, 
+            userId   
         });
+    }
+
+
+    static async update({title, preview, text, image, id}){
+        
     }
 }
 
@@ -86,6 +89,11 @@ mongoSchema.virtual('id').get(function(){
 mongoSchema.set('toJSON', {
     virtuals: true
 });
+
+mongoSchema.set('toObject', {
+    virtuals: true
+});
+
 
 const Post = mongoose.model('Post', mongoSchema);
 module.exports = Post;

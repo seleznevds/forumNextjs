@@ -5,8 +5,10 @@ let Vote = require('../models/Vote');
 const uuidv4 = require('uuid/v4');
 const multer = require('multer');
 const path = require('path');
+const escape =  require('escape-html');
 const fs = require('fs')
 const config = require('../config.js');
+
 
 
 let checkAuthMiddleware = (req, res, next) => {
@@ -37,7 +39,7 @@ let upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
     if (!['image/jpeg', 'image/pjpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
-      cb(new Error('Wrong mime type'), false);      
+      cb(new Error('Wrong mime type'), false);
       return;
     }
     cb(null, true);
@@ -49,7 +51,7 @@ let upload = multer({
   }
 }).single('image');
 
-let createPostErrorMiddleware  = (err, req, res, next) =>{
+let createPostErrorMiddleware = (err, req, res, next) => {
   if (err) {
     console.log('post /create error');
     res.status(404).json({
@@ -58,15 +60,15 @@ let createPostErrorMiddleware  = (err, req, res, next) =>{
     });
 
     return;
-  } 
+  }
 
   next();
 }
 
 
-router.post('/create', checkAuthMiddleware ,  upload, createPostErrorMiddleware , async (req, res) => {
-  let title = req.body && req.body.title? req.body.title.trim() : '';
-  let content = req.body && req.body.content? req.body.content.trim() : '';
+router.post('/create', checkAuthMiddleware, upload, createPostErrorMiddleware, async (req, res) => {
+  let title = req.body && req.body.title ? req.body.title.trim() : '';
+  let content = req.body && req.body.content ? req.body.content.trim() : '';
 
   if (!title || !content) {
     if (req.file && req.file.path) {
@@ -74,8 +76,6 @@ router.post('/create', checkAuthMiddleware ,  upload, createPostErrorMiddleware 
 
       });
     }
-
-    
 
     res.status(404).json({
       status: 'error',
@@ -90,7 +90,8 @@ router.post('/create', checkAuthMiddleware ,  upload, createPostErrorMiddleware 
       title,
       preview: req.body.preview || '',
       text: req.body.content,
-      image: req.file && req.file.filename ? `/images/posts/${req.file.filename}` : ''
+      image: req.file && req.file.filename ? `/images/posts/${req.file.filename}` : '',
+      userId: req.user.id
     });
 
     if (post) {
@@ -103,7 +104,7 @@ router.post('/create', checkAuthMiddleware ,  upload, createPostErrorMiddleware 
   } catch (err) {
     console.log(err);
     if (req.file && req.file.path) {
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
     }
 
     res.status(404).json({
@@ -114,18 +115,88 @@ router.post('/create', checkAuthMiddleware ,  upload, createPostErrorMiddleware 
 });
 
 
+router.post('/edit', checkAuthMiddleware, upload, createPostErrorMiddleware, async (req, res) => {
+  let title = req.body && req.body.title ? req.body.title.trim() : '';
+  let content = req.body && req.body.content ? req.body.content.trim() : '';
+  let id = req.body && req.body.id;
+
+  if (!id || !title || !content) {
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, () => {
+
+      });
+    }
+
+    res.status(404).json({
+      status: 'error',
+      message: 'Необходимо  заполнить  обязательные поля.'
+    });
+
+    return;
+  }
+
+  let post;
+  try {
+    post = await Post.findOne({ _id: id, userId: req.user.id });
+    if (!post) {
+      res.status(400).json({ status: 'error', message: 'Пост не найден, либо  доступ запрещен' });
+      return;
+    }
+
+    post = post.toObject();
+  } catch (err) {
+    res.status(400).json({ status: 'error', message: 'Неизвестная ошибка. Попробуйте  поторить через некоторое время' });
+    return;
+  }
+
+  const modifier = {
+    title : escape(title),
+    text: escape(content),
+    preview: req.body.preview ? escape(req.body.preview.trim()) : ''
+  };
+  
+  if (req.file && req.file.filename) {
+    modifier.image = `/images/posts/${req.file.filename}`;
+  }
+
+  try {
+    let updated = await Post.updateOne({ _id: id }, { $set: modifier });
+    if (post.image && req.file && req.file.path) {  // если  все ок, то удаляем старое изображение
+           
+      fs.unlink(path.join(config.staticFolder,  post.image), () => {
+
+      });  
+    }
+    
+    res.status(200).json({ status: 'success', message: 'Пост обновлен!',
+     image: req.file &&  req.file.filename?  `/images/posts/${req.file.filename}`: null });
+    return;    
+  } catch (err) {
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, () => {//если не обновили, то удаляем новое  загруженное изображение
+
+      });
+      res.status(400).json({ status: 'error', message: 'Неизвестная ошибка. Попробуйте  поторить через некоторое время' });
+      return;
+    }
+  }
+});
+
+
 router.get('/:id', async (req, res) => {
   if (!req.params.id) {
-    res.status(400);
-    res.send('id param is expected');
+    res.status(400).json({ status: 'error', message: 'Идентификатор поста не указан' });
   }
 
   let post, vote;
   try {
     post = await Post.findById(req.params.id);
-    post = post.toObject({ virtuals: true });
+    if (!post) {
+      res.status(400).json({ status: 'error', message: 'Пост не найден' });
+    }
+    post = post.toObject();
   } catch (err) {
-    res.status(404).send('post not  found');
+    res.status(400).json({ status: 'error', message: 'Пост не найден' });
     return;
   }
 
@@ -137,7 +208,7 @@ router.get('/:id', async (req, res) => {
         authorId: req.user.id
       });
       if (vote) {
-        vote = vote.toObject({ virtuals: true })
+        vote = vote.toObject()
         post.votes = Object.assign({}, post.votes, { userVoteType: vote.voteType });
       }
 
@@ -147,6 +218,27 @@ router.get('/:id', async (req, res) => {
   }
 
   res.send({ post });
+});
+
+
+router.get('/ifauthor/:id', checkAuthMiddleware, async (req, res) => {
+  if (!req.params.id) {
+    res.status(400).json({ status: 'error', message: 'Идентификатор поста не указан' });
+    return;
+  }
+
+  try {
+    let post = await Post.findOne({ _id: req.params.id, userId: req.user.id });
+    if (post) {
+      res.send({ post: post.toObject() });
+    } else {
+      res.status(400).json({ status: 'error', message: 'Пост не найден' });
+    }
+
+  } catch (err) {
+    res.status(400).json({ status: 'error', message: 'Пост не найден' });
+    return;
+  }
 });
 
 
@@ -169,9 +261,8 @@ router.get('/', async (req, res) => {
       }
     }
 
-
     posts = posts.map((post) => {
-      post = post.toObject({ virtuals: true });
+      post = post.toObject();
       post.votes = Object.assign({}, post.votes, { userVoteType: votes.get(post.id) });
       return post;
     });
