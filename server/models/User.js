@@ -9,13 +9,6 @@ const mongoSchema = new Schema({
     required: true,
     unique: true,
   },
-  googleToken: {
-    access_token: String,
-    refresh_token: String,
-    token_type: String,
-    expiry_date: Number,
-  },
-
   createdAt: {
     type: Date,
     required: true,
@@ -45,26 +38,10 @@ class UserClass {
     ];
   }
 
-  static async signInOrSignUp({ googleId, email, googleToken, displayName, avatarUrl }) {
+  static async signInOrSignUp({ googleId, email, displayName, avatarUrl }) {
     const user = await this.findOne({ googleId }).select(UserClass.publicFields().join(' '));
 
     if (user) {
-      const modifier = {};
-
-      if (googleToken.accessToken) {
-        modifier.access_token = googleToken.accessToken;
-      }
-
-      if (googleToken.refreshToken) {
-        modifier.refresh_token = googleToken.refreshToken;
-      }
-
-      if (_.isEmpty(modifier)) {
-        return user;
-      }
-
-      await this.updateOne({ googleId }, { $set: modifier });
-
       return user;
     }
 
@@ -74,7 +51,6 @@ class UserClass {
       createdAt: new Date(),
       googleId,
       email,
-      googleToken,
       displayName,
       avatarUrl
     });

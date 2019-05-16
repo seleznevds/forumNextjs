@@ -19,7 +19,6 @@ function auth({ ROOT_URL, server }) {
       const user = await User.signInOrSignUp({
         googleId: profile.id,
         email,
-        googleToken: { accessToken, refreshToken },
         displayName: profile.displayName,
         avatarUrl,
       });
