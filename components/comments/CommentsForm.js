@@ -157,7 +157,7 @@ class CommentsForm extends Component {
 
     } else {
       formLayout = !this.state.loading ? 
-        <Row >
+        <Row>
           <Col s={1}>{avatar}</Col>
           <Col s={9} >
             <div>{form}</div>
