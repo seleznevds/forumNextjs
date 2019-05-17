@@ -12,4 +12,5 @@ node_modules/
 .coverage
 .env
 .next
-static/images/posts/
+static/images/posts/*
+!static/images/posts/.gitkeep

@@ -9,6 +9,7 @@ import Vote from '../Vote';
 import moment from 'moment';
 
 moment.locale('ru');
+
 const CommentText = styled.div`
     white-space: pre-wrap;
 `;
@@ -70,7 +71,7 @@ class Comment extends Component {
             this.state.comments.length === this.props.comment.descendantsIds.length) {
             return;
         }
-        this.props.getComments({ancestorId:this.props.comment.id, postId:this.props.comment.postId, component:this, offset, limit});
+        this.props.getComments({ ancestorId: this.props.comment.id, postId: this.props.comment.postId, component: this, offset, limit });
     }
 
     getMoreDescendants = (event) => {
@@ -93,9 +94,12 @@ class Comment extends Component {
     render() {
         const { comment, author } = this.props;
 
+        
+        //у комментариев  первого уровня  будем отображать всех имеющихся потомков
         let descendants = null;
         if (this.props.root && comment.descendantsIds && comment.descendantsIds.length) {
-            if (!this.state.showDescendants) {
+
+            if (!this.state.showDescendants) { //если потомки  скрыты
                 let word = getWordForm(comment.descendantsIds.length, {
                     plural: 'ответов',
                     genitive: 'ответа',
@@ -103,53 +107,67 @@ class Comment extends Component {
                 })
 
                 descendants = <CommentShowLink onClick={this.toggleDescendants}>
-                Показать {comment.descendantsIds.length > 1 ? comment.descendantsIds.length : ''} {word}</CommentShowLink>;
-            } else {
+                    Показать {comment.descendantsIds.length > 1 ? comment.descendantsIds.length : ''} {word}</CommentShowLink>;
+            } else {//если пользователь  открыл список  потомков
                 descendants = <>
                     <CommentShowLink onClick={this.toggleDescendants}>Скрыть ответы</CommentShowLink>
 
-                    {this.state.comments.map((comment) => {
-                        return (
-                            <Comment key={comment.id} comment={comment} author={author} getComments={this.getComments} receiveCommentHandler={this.receiveComment} />
-                        );
-                    })}
+                    {this.state.comments.map(comment => 
+                        <Comment key={comment.id} comment={comment} author={author} receiveCommentHandler={this.receiveComment} />)}
+                    
                     {this.state.comments.length && this.state.comments.length < this.props.comment.descendantsIds.length ?
                         <CommentShowLink onClick={this.getMoreDescendants}>Другие ответы</CommentShowLink> : null}
                 </>;
             }
         }
 
+        //если  пользователь  отвечает на ккомментарий, то комментарий добавляется в список  новых потомков
         let newDescendants = null;
         if (this.props.root && this.state.newComments.length) {
             newDescendants = <div style={{ marginTop: "14px" }}>
-                {this.state.newComments.map((comment) => {
-                    return (
-                        <Comment key={comment.id} comment={comment} author={author} getComments={this.getComments} receiveCommentHandler={this.receiveComment} />
-                    );
-                })}
+                {this.state.newComments.map(comment =>
+                     <Comment key={comment.id} comment={comment} author={author}  receiveCommentHandler={this.receiveComment} />)}
             </div>;
         }
 
+        let loader = (this.state.loading ?
+            <Row >
+                <Col s={12} style={{ textAlign: "center" }} >
+                    <Preloader size="small" />
+                </Col>
+            </Row> : null);
+
+        let voteForm = <Vote elementId={comment.id} votes={comment.votes} moduleName='Comment' />;
+
         return (
             <Row key={comment.id}>
-                <Col s={1}>{<AvatarContaner><img className="circle responsive-img" src={author.avatarUrl} /></AvatarContaner>}</Col>
+                <Col s={1}>
+                    <AvatarContaner>
+                        <img className="circle responsive-img" src={author.avatarUrl} />
+                    </AvatarContaner>
+                </Col>
+                
                 <Col s={9} >
+                    
                     <div>
                         <CommentAuthor>{author.displayName}</CommentAuthor>
-                        <CommentDate>{ moment(comment.createdAt, "YYYY-MM-DDTHH:mm:ss.SSS").fromNow() }</CommentDate>
+                        <CommentDate>{moment(comment.createdAt, "YYYY-MM-DDTHH:mm:ss.SSS").fromNow()}</CommentDate>
                     </div>
+                    
                     <CommentText>{comment.text}</CommentText>
-                    <CommentsForm parentId={comment.id} ancestorId={comment.ancestorId || comment.id} postId={comment.postId}
+                    
+                    <CommentsForm 
+                        parentId={comment.id}
+                        ancestorId={comment.ancestorId || comment.id} 
+                        postId={comment.postId}
                         receiveCommentHandler={this.props.receiveCommentHandler || this.receiveComment}
-                        voteForm={<Vote elementId={comment.id} votes={comment.votes} moduleName='Comment' />} />
+                        voteForm={voteForm} />
+                    
                     {descendants}
+                    
                     {newDescendants}
-                    {this.state.loading ?
-                        <Row >
-                            <Col s={12} style={{ textAlign: "center" }} >
-                                <Preloader size="small" />
-                            </Col>
-                        </Row> : null}
+                    
+                    {loader}
 
                 </Col>
                 <Col s={1}></Col>

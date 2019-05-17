@@ -35,8 +35,7 @@ const mongoSchema = new Schema({
         type: Schema.Types.ObjectId,
     },
 
-    childrensIds: [Schema.Types.ObjectId],
-
+    
     descendantsIds: [Schema.Types.ObjectId],
 
     votes: {
@@ -70,34 +69,21 @@ class CommentClass {
             authorId
         });
 
-        if(parentId && ancestorId){
+        if(ancestorId){
             this.findById(ancestorId).then((ancestor) => {
+                console.log('foooo');
                 let descendantsIds = Array.isArray(ancestor.descendantsIds) ? [...ancestor.descendantsIds, newComment.id]  : [newComment.id];
                 
                 Comment.updateOne({ _id: ancestorId}, {
-                    descendantsIds,
-                    childrensIds: descendantsIds                
+                    descendantsIds           
                 }).catch((err) => {
                     console.log(err);
                 });   
             }).catch((err) => {
                 console.log(err);
-            });
-
-            if(parentId !== ancestorId){
-               
-                this.findById(parentId).then((parent) => {
-                    let childrensIds = Array.isArray(parent.childrensIds) ? [...parent.childrensIds, newComment.id] : [newComment.id];
-
-                    Comment.updateOne({_id: parentId}, {childrensIds}).catch((err) => {
-                        console.log(err);
-                    });
-                }).catch((err) => {
-                    console.log(err);
-                });
-            }
+            });            
         } 
-       
+        console.log('boooo');
         return newComment;
     }
 

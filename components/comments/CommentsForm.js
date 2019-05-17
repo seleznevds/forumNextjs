@@ -14,7 +14,6 @@ const AvatarContaner = styled.div`
 `;
 
 
-
 class CommentsForm extends Component {
 
   state = {
@@ -27,11 +26,11 @@ class CommentsForm extends Component {
   };
 
   showForm = (event) => {
-    if(! this.context || ! this.context.id){
+    if (!this.context || !this.context.id) {
       Router.push('/login');
       return;
     }
-      
+
     this.setState({
       hidden: false
     })
@@ -39,7 +38,7 @@ class CommentsForm extends Component {
   }
 
   onFocusHandler = () => {
-    if(! this.context || !this.context.id){
+    if (!this.context || !this.context.id) {
       Router.push('/login');
       return;
     }
@@ -111,17 +110,18 @@ class CommentsForm extends Component {
   }
 
 
-  render() {   
+  render() {
 
-    let avatar = this.context && this.context.avatarUrl ? <AvatarContaner> <img className="circle responsive-img" src={this.context.avatarUrl} /></AvatarContaner> 
-     : <AvatarContaner> <Icon medium={true}>account_circle</Icon></AvatarContaner> ;
-    
+    let avatar = this.context && this.context.avatarUrl ? 
+      <AvatarContaner> <img className="circle responsive-img" src={this.context.avatarUrl} /></AvatarContaner>
+      : <AvatarContaner> <Icon medium={true}>account_circle</Icon></AvatarContaner>;
+
 
     let form = (<div>
       <form onSubmit={this.onSubmitHandler}>
         <Row >
           <Col s={12}><Textarea id={'comment_form' + this.props.postId + (this.props.parentId ? this.props.parentId : '')} name="comment_text" s={12} placeholder="Оставьте комментарий"
-            onChange={this.onChangeHandler} value={this.state.value} style={{ marginTop: '0px' }} onFocus={this.onFocusHandler}/></Col>
+            onChange={this.onChangeHandler} value={this.state.value} style={{ marginTop: '0px' }} onFocus={this.onFocusHandler} /></Col>
           <Col s={6}>{this.state.errorText}</Col>
           <Col s={6} >
             <Button className="right" type="submit" small disabled={!this.state.readyToSubmit} >Отправить</Button>
@@ -156,14 +156,14 @@ class CommentsForm extends Component {
       );
 
     } else {
-      formLayout = !this.state.loading ? (
+      formLayout = !this.state.loading ? 
         <Row >
           <Col s={1}>{avatar}</Col>
           <Col s={9} >
             <div>{form}</div>
           </Col>
         </Row>
-      ) : <Row >
+       : <Row >
           <Col s={12} style={{ textAlign: "center" }} >
             <Preloader size="small" />
           </Col>

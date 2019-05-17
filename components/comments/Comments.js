@@ -37,10 +37,7 @@ class Comments extends Component {
         return author;
     });
   }
-
-  getMoreComments = () => {
-    this.getComments({ offset: this.state.comments.length, limit: 1 });
-  }
+  
 
   getComments({ ancestorId = null, postId = this.props.postId, component = this, offset = 0, limit = 2 } = {}) {
     component.setState({
@@ -71,7 +68,7 @@ class Comments extends Component {
     });;
   }
 
-
+  //после  добавления  комментария с помощью формы, он  прийдет  обратно в ответе от сервера
   receiveComment = (comment, author) => {
     this.setState(state => {
       return {
@@ -86,41 +83,36 @@ class Comments extends Component {
    this.getComments({ limit: 2 });
   }
 
+  //при  скроллинге  вниз загружаем  новые комментарии
+  getMoreComments = () => {
+    this.getComments({ offset: this.state.comments.length, limit: 2 });
+  }
 
   render() {
 
-    let loader = (
-      <Col s={12} style={{ textAlign: "center" }} >
-        <StyledPreloadercontaner><Preloader size="small" /></StyledPreloadercontaner>
-      </Col>
+    let loader = (this.state.loading ?
+      <Row >
+        <Col s={12} style={{ textAlign: "center" }} >
+          <Preloader size="small" />
+        </Col>
+      </Row> : null
     );
 
     return (
       <>
         <h4>Comments</h4>
         <CommentsForm parentId={null} ancestorId={null} postId={this.props.postId} receiveCommentHandler={this.receiveComment} key={this.props.postId}/>
+        
         <StyledInfiniteScroll
           dataLength={this.state.comments.length}
           next={this.getMoreComments}
           hasMore={this.state.comments.length < this.state.commentsQuantity}
           >
-          {this.state.comments.map(comment => {
-            let author = this.getAuthor(comment.authorId);
+          {this.state.comments.map(comment =>
+             <Comment key={comment.id} comment={comment} author={this.getAuthor(comment.authorId)} getComments={this.getComments} root />)}
 
-            return (
-              <Comment key={comment.id} comment={comment} author={author} getComments={this.getComments} root />
-            );
-
-          })}
-
-          {this.state.loading ?
-            <Row >
-              <Col s={12} style={{ textAlign: "center" }} >
-                <Preloader size="small" />
-              </Col>
-            </Row> : null}
+          {loader}
         </StyledInfiniteScroll>
-
       </>
     );
   }

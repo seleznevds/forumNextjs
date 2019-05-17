@@ -106,6 +106,8 @@ router.post('/', async (req, res) => {
         ancestorId: req.body.ancestorId || null
       });
 
+      console.log('mooooooo');
+
     } catch (err) {
       comment = null;
       console.log(err);
