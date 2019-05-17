@@ -163,7 +163,7 @@ class CommentsForm extends Component {
             <div>{form}</div>
           </Col>
         </Row>
-       : <Row >
+       : <Row>
           <Col s={12} style={{ textAlign: "center" }} >
             <Preloader size="small" />
           </Col>
