@@ -10,6 +10,7 @@ require('dotenv').config();
 const api = require('./api');
 const auth = require('./googleAuth');
 const config = require('./config');
+const getRootUrl = require('../lib/getRootUrl');
 
 
 
@@ -22,10 +23,15 @@ mongoose.connect(
     }
 ).catch(err => { });
 
+
+
+
+
+
 const dev = process.env.NODE_ENV !== 'production';
 
 const port = process.env.PORT || 8000;
-const ROOT_URL = `http://localhost:${port}`;
+const ROOT_URL = getRootUrl();
 
 
 const app = next({ dev });
@@ -35,6 +41,8 @@ app.prepare().then(async () => {
     const server = express();
     server.use(helmet());
     server.use(express.static(config.staticFolder));
+    
+    
    
     const MongoStore = mongoSessionStore(session);
     const sess = {
@@ -51,6 +59,11 @@ app.prepare().then(async () => {
             maxAge: 2 * 24 * 60 * 60 * 1000,
         },
     };
+
+    if (!dev) {
+        server.set('trust proxy', 1); // trust first proxy
+        sess.cookie.secure = true; // serve secure cookies
+    }
 
     server.use(session(sess));
 
