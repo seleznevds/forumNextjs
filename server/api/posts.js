@@ -260,6 +260,7 @@ router.get('/', async (req, res) => {
 
     let votes = new Map();
     if (req.user && req.user.id) {
+      console.log('post user', req.user )
       try {
         votes = await Vote.getVotesByElementsIds('Post', req.user.id, postIds)
       } catch (err) {
@@ -270,6 +271,7 @@ router.get('/', async (req, res) => {
 
     posts = posts.map((post) => {
       post = post.toObject();
+      console.log('votes by post', votes.get(post.id), post.id);
       post.votes = Object.assign({}, post.votes, { userVoteType: votes.get(post.id) });
       return post;
     });
