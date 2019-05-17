@@ -39,11 +39,7 @@ class Post extends React.Component {
                         <img src={post.image} className="responsive-img" />
                     </Col>
                     <Col s={8}><p>{this.props.isDetail ? post.text : post.preview}</p></Col>
-                    <Col s={1}>
-                        <p>
-                            <Link as={`/post/edit/${post.id}`} href={`/post/edit?postId=${post.id}`}><a>Редактировать</a></Link>
-                        </p>
-                    </Col>
+                    
                 </Row>
             </Card>
 

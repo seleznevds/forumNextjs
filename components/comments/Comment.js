@@ -35,6 +35,13 @@ const CommentDate = styled.span`
     color:hsl(0, 0%, 53.3%);
 `;
 
+const AvatarContaner = styled.div`
+  user-select: none;
+  height: 60px;
+  width:60px;
+`;
+
+
 
 
 class Comment extends Component {
@@ -125,7 +132,7 @@ class Comment extends Component {
 
         return (
             <Row key={comment.id}>
-                <Col s={1}>{<img className="circle responsive-img" src={author.avatarUrl} />}</Col>
+                <Col s={1}>{<AvatarContaner><img className="circle responsive-img" src={author.avatarUrl} /></AvatarContaner>}</Col>
                 <Col s={9} >
                     <div>
                         <CommentAuthor>{author.displayName}</CommentAuthor>

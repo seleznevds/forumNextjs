@@ -83,7 +83,7 @@ class Comments extends Component {
   }
 
   componentDidMount() {
-   this.getComments({ limit: 1 });
+   this.getComments({ limit: 2 });
   }
 
 

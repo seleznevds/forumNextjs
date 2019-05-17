@@ -7,8 +7,10 @@ import Router from 'next/router';
 import styled from 'styled-components';
 
 
-const AvatarIcon= styled(Icon)`
-  user-select: none
+const AvatarContaner = styled.div`
+  user-select: none;
+  height: 60px;
+  width:60px;
 `;
 
 
@@ -111,8 +113,8 @@ class CommentsForm extends Component {
 
   render() {   
 
-    let avatar = this.context && this.context.avatarUrl ? <img className="circle responsive-img" src={this.context.avatarUrl} /> 
-     : <AvatarIcon medium={true}>account_circle</AvatarIcon>;
+    let avatar = this.context && this.context.avatarUrl ? <AvatarContaner> <img className="circle responsive-img" src={this.context.avatarUrl} /></AvatarContaner> 
+     : <AvatarContaner> <Icon medium={true}>account_circle</Icon></AvatarContaner> ;
     
 
     let form = (<div>
