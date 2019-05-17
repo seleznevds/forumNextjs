@@ -8,7 +8,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styled from 'styled-components';
 
 let limit = 2;
-let headers = {};
+
 
 let StyledPreloadercontaner = styled.div`
     height:85px;
@@ -23,7 +23,10 @@ class Index extends React.Component {
 
     getMorePosts = async () => {
         try {
-            let { posts, postsQuantity } = await postsApi.getList({ offset: this.state.posts.length, limit, headers });
+            let { posts, postsQuantity } = await postsApi.getList({ 
+                offset: this.state.posts.length,
+                limit,
+                headers: this.state.headers});
 
             this.setState((state) => {
                 return {
@@ -62,6 +65,8 @@ class Index extends React.Component {
 
     static async getInitialProps({ req }) {
         try {
+            const headers = {};
+
             if (req && req.headers && req.headers.cookie) {
                 headers.cookie = req.headers.cookie;
             }
@@ -74,7 +79,8 @@ class Index extends React.Component {
         } catch (error) {
             return {
                 posts: [],
-                postsQuantity: 0
+                postsQuantity: 0,
+                headers: {}
             }
         }
     }
