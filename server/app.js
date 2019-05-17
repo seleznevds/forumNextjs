@@ -10,6 +10,7 @@ require('dotenv').config();
 const api = require('./api');
 const auth = require('./googleAuth');
 const config = require('./config');
+const getRootUrl = require('../lib/getRootUrl');
 
 
 
@@ -22,10 +23,15 @@ mongoose.connect(
     }
 ).catch(err => { });
 
+
+
+
+
+
 const dev = process.env.NODE_ENV !== 'production';
 
 const port = process.env.PORT || 8000;
-const ROOT_URL = `http://localhost:${port}`;
+const ROOT_URL = getRootUrl();
 
 
 const app = next({ dev });

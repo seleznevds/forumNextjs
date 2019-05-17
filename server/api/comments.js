@@ -104,9 +104,7 @@ router.post('/', async (req, res) => {
         authorId: req.user.id,
         parentId: req.body.parentId || null,
         ancestorId: req.body.ancestorId || null
-      });
-
-      console.log('mooooooo');
+      });      
 
     } catch (err) {
       comment = null;

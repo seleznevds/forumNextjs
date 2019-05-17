@@ -71,7 +71,6 @@ class CommentClass {
 
         if(ancestorId){
             this.findById(ancestorId).then((ancestor) => {
-                console.log('foooo');
                 let descendantsIds = Array.isArray(ancestor.descendantsIds) ? [...ancestor.descendantsIds, newComment.id]  : [newComment.id];
                 
                 Comment.updateOne({ _id: ancestorId}, {
@@ -83,7 +82,7 @@ class CommentClass {
                 console.log(err);
             });            
         } 
-        console.log('boooo');
+        
         return newComment;
     }
 
