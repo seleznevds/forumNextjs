@@ -21,7 +21,7 @@
     "express": "^4.16.4",
     "express-session": "^1.16.1",
     "helmet": "^3.18.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "materialize-css": "^1.0.0",
     "moment": "^2.24.0",
     "mongoose": "^5.7.5",
